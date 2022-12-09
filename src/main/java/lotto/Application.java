@@ -1,12 +1,15 @@
 package lotto;
 
-public class Application {
+import lotto.controller.LottoController;
+import lotto.view.OutputView;
 
+public class Application {
     public static void main(String[] args) {
         try {
-            Play play = new Play();
-            play.start();
+            LottoController lottoController = new LottoController();
+            lottoController.start();
         } catch (IllegalArgumentException e) {
+            OutputView.printErrorMessage(e.getMessage());
         }
     }
 }

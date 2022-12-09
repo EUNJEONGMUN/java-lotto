@@ -76,7 +76,7 @@ class ApplicationTest extends NsTest {
     void 기능_테스트_로또정렬() {
         assertRandomUniqueNumbersInRangeTest(
                 () -> {
-                    run("4000", "1, 2, 3, 4, 5, 6", "7");
+                    run("004000", "1, 2, 3, 4, 5, 6", "7");
                     assertThat(output()).contains(
                             "4개를 구매했습니다.",
                             "[1, 2, 3, 4, 5, 6]",
@@ -110,30 +110,6 @@ class ApplicationTest extends NsTest {
     void 예외_테스트() {
         assertSimpleTest(() -> {
             runException("1000j");
-            assertThat(output()).contains(ERROR_MESSAGE);
-        });
-    }
-
-    @Test
-    void 예외_테스트_30억원() {
-        assertSimpleTest(() -> {
-            runException("3000000000");
-            assertThat(output()).contains(ERROR_MESSAGE);
-        });
-    }
-
-    @Test
-    void 예외_테스트_0원() {
-        assertSimpleTest(() -> {
-            runException("0");
-            assertThat(output()).contains(ERROR_MESSAGE);
-        });
-    }
-
-    @Test
-    void 예외_테스트_천원단위x() {
-        assertSimpleTest(() -> {
-            runException("10001");
             assertThat(output()).contains(ERROR_MESSAGE);
         });
     }

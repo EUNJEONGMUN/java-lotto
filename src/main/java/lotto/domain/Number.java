@@ -1,11 +1,10 @@
 package lotto.domain;
 
-import constant.ErrorMessage;
-
 import java.util.Objects;
 
-public class Number {
-    private static final int LOTTO_NUMBER__MIN = 1;
+public class Number implements Comparable<Number> {
+    private static final String NOT_LOTTO_NUMBER_RANGE_ERROR = "1에서 45사이의 숫자를 입력해주세요.";
+    private static final int LOTTO_NUMBER_MIN = 1;
     private static final int LOTTO_NUMBER_MAX = 45;
 
     private final int number;
@@ -20,8 +19,8 @@ public class Number {
     }
 
     private void validRange(int number) {
-        if (number<LOTTO_NUMBER__MIN || number>LOTTO_NUMBER_MAX) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_LOTTO_NUMBER_RANGE);
+        if (number < LOTTO_NUMBER_MIN || number > LOTTO_NUMBER_MAX) {
+            throw new IllegalArgumentException(NOT_LOTTO_NUMBER_RANGE_ERROR);
         }
     }
 
@@ -43,5 +42,15 @@ public class Number {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Number obj) {
+        return this.number - obj.getNumber();
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(number);
     }
 }

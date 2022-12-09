@@ -1,70 +1,27 @@
 package lotto.domain;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class PrizeTest {
 
-    @DisplayName("로또 번호 비교에 따른 Prize 타입 테스트")
-    @ParameterizedTest(name = "{index}: {3}")
-    @MethodSource("findPrizeTypeTest")
-    void 테스트(int winningCount, int bonusCount, Prize expected, String message) {
-        Prize result = Prize.findPrizeType(new MatchCount(winningCount, bonusCount));
-        assertThat(result).isEqualTo(expected);
+    @DisplayName("등수에 따른 상금을 반환한다.")
+    @ParameterizedTest(name = "[{index}] rank({0}) -> prize({1})")
+    @CsvSource(value = {"NONE:NONE", "FIRST:FIRST_PRIZE", "SECOND:SECOND_PRIZE", "THIRD:THIRD_PRIZE", "FOURTH:FOURTH_PRIZE", "FIFTH:FIFTH_PRIZE"}, delimiter = ':')
+    void findByRank(Rank rank, Prize expected) {
+        Prize result = Prize.findByRank(rank);
+        Assertions.assertThat(result).isEqualTo(expected);
     }
 
-    private static Stream<Arguments> findPrizeTypeTest() {
-        return Stream.of(
-                Arguments.of(3, 0, Prize.THREE_MATCH, "3개일치"),
-                Arguments.of(3, 1, Prize.THREE_MATCH, "3개일치"),
-                Arguments.of(4, 0, Prize.FOUR_MATCH, "4개일치"),
-                Arguments.of(4, 1, Prize.FOUR_MATCH, "4개일치"),
-                Arguments.of(5, 0, Prize.FIVE_MATCH, "5개일치"),
-                Arguments.of(5, 1, Prize.FIVE_BONUS_MATCH, "5개+보너스일치"),
-                Arguments.of(6, 0, Prize.SIX_MATCH, "6개일치"),
-                Arguments.of(2, 0, Prize.NONE, "없음"),
-                Arguments.of(0, 0, Prize.NONE, "없음")
-        );
-    }
-
-    @DisplayName("상금 계산 테스트")
+    @DisplayName("1등을 2개 맞으면 40억의 상금을 받는다.")
     @Test
-    void getPrizeMoneyTest() {
-        int count = 2;
-        long threeMatch = Prize.calculatePrizeMoney(Prize.THREE_MATCH, count);
-        int answer = 5000 * count;
-
-        long fiveBonusMatch = Prize.calculatePrizeMoney(Prize.FIVE_BONUS_MATCH, count);
-        int answer2 = 30000000 * count;
-
-        assertThat(threeMatch).isEqualTo(answer);
-        assertThat(fiveBonusMatch).isEqualTo(answer2);
-    }
-
-    @DisplayName("당첨 결과 리스트 생성 테스트")
-    @Test
-    void makeResultMessageTest() {
-        HashMap<Prize, Integer> totalMatchResult = new HashMap<>();
-        totalMatchResult.put(Prize.FOUR_MATCH, 2);
-        totalMatchResult.put(Prize.FIVE_MATCH, 1);
-
-        List<String> messages = Prize.makeResultMessage(totalMatchResult);
-
-        List<String> answer = List.of(
-                "3개 일치 (5,000원) - 0개",
-                "4개 일치 (50,000원) - 2개",
-                "5개 일치 (1,500,000원) - 1개",
-                "5개 일치, 보너스 볼 일치 (30,000,000원) - 0개",
-                "6개 일치 (2,000,000,000원) - 0개");
-        assertThat(messages).isEqualTo(answer);
+    void calculatePrizeMoney() {
+        Prize first = Prize.FIRST_PRIZE;
+        long result = first.calculatePrizeMoney(2);
+        long expected = 4000000000L;
+        Assertions.assertThat(result).isEqualTo(expected);
     }
 }

@@ -1,65 +1,58 @@
 package lotto.domain;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
-import static constant.Messages.*;
+import java.util.EnumMap;
 
 public enum Prize {
+    NONE(Rank.NONE, 0, Messages.NONE_MESSAGE),
+    FIRST_PRIZE(Rank.FIRST, 2000000000, Messages.FIRST_PRIZE_MESSAGE),
+    SECOND_PRIZE(Rank.SECOND, 30000000, Messages.SECOND_PRIZE_MESSAGE),
+    THIRD_PRIZE(Rank.THIRD, 1500000, Messages.THIRD_PRIZE_MESSAGE),
+    FOURTH_PRIZE(Rank.FOURTH, 50000, Messages.FOURTH_PRIZE_MESSAGE),
+    FIFTH_PRIZE(Rank.FIFTH, 5000, Messages.FIFTH_PRIZE_MESSAGE);
 
-    NONE(new MatchCount(0, 0), 0, NONE_MESSAGE),
-    THREE_MATCH(new MatchCount(3, 0), 5000, THREE_MATCH_MESSAGE),
-    FOUR_MATCH(new MatchCount(4, 0), 50000, FOUR_MATCH_MESSAGE),
-    FIVE_MATCH(new MatchCount(5, 0), 1500000, FIVE_MATCH_MESSAGE),
-    FIVE_BONUS_MATCH(new MatchCount(5, 1), 30000000, FIVE_BONUS_MATCH_MESSAGE),
-    SIX_MATCH(new MatchCount(6, 0), 2000000000, SIX_MATCH_MESSAGE);
-
-    private final MatchCount matchCount;
-    private final int prizeMoney;
+    private final Rank rank;
+    private final long prizeMoney;
     private final String message;
 
-    Prize(MatchCount matchCount, int prizeMoney, String message) {
-        this.matchCount = matchCount;
+    Prize(Rank rank, long prizeMoney, String message) {
+        this.rank = rank;
         this.prizeMoney = prizeMoney;
         this.message = message;
     }
 
-    private MatchCount getMatchCount() {
-        return matchCount;
+    private Rank getRank() {
+        return rank;
     }
 
-    private int getPrizeMoney() {
-        return prizeMoney;
-    }
-
-    private String getMessage() {
+    public String getMessage() {
         return message;
     }
 
-    public static Prize findPrizeType(MatchCount matchCount) {
+    public long calculatePrizeMoney(int count) {
+        return this.prizeMoney * count;
+    }
+
+    public static Prize findByRank(Rank rank) {
         return Arrays.stream(Prize.values())
-                .filter(prize -> prize.getMatchCount().isSameResult(matchCount))
+                .filter(prize -> prize.getRank().equals(rank))
                 .findAny()
                 .orElse(NONE);
     }
 
-    public static long calculatePrizeMoney(Prize prize, int count) {
-        long a = (long) prize.getPrizeMoney() * count;
-        return (long) prize.getPrizeMoney() * count;
+    public static EnumMap<Prize, Integer> initialMap() {
+        EnumMap<Prize, Integer> init = new EnumMap<>(Prize.class);
+        Arrays.stream(Prize.values())
+                .forEach(prize -> init.put(prize, 0));
+        return init;
     }
 
-    public static List<String> makeResultMessage(HashMap<Prize, Integer> totalMatchResult) {
-        List<String> resultMessages = new ArrayList<>();
-
-        for (Prize prize : Prize.values()) {
-            if (prize == NONE) {
-                continue;
-            }
-            int count = totalMatchResult.getOrDefault(prize, 0);
-            resultMessages.add(String.format(MAKE_RESULT_MASSAGE, prize.getMessage(), count));
-        }
-        return resultMessages;
+    private static class Messages {
+        private static final String NONE_MESSAGE = "없음";
+        private static final String FIFTH_PRIZE_MESSAGE = "3개 일치 (5,000원)";
+        private static final String FOURTH_PRIZE_MESSAGE = "4개 일치 (50,000원)";
+        private static final String THIRD_PRIZE_MESSAGE = "5개 일치 (1,500,000원)";
+        private static final String SECOND_PRIZE_MESSAGE = "5개 일치, 보너스 볼 일치 (30,000,000원)";
+        private static final String FIRST_PRIZE_MESSAGE = "6개 일치 (2,000,000,000원)";
     }
 }
